@@ -72,12 +72,22 @@ func (p *UpperWriter) Write(data []byte) (n int, err error) {
 	 */
 }
 
-func main() {
+func main1() {
 	fmt.Fprintln(&UpperWriter{os.Stdout}, "hello, world")
 }
 
+// 如果满足了 fmt.Stringer 接口, 则默认使用对象的 String() 方法返回的结果打印,
+// 所以可以定义自己的打印格式实现将每个字符转换为大写字符后输出的效果
 type UpperString string
 
 func (s UpperString) String() string {
 	return strings.ToUpper(string(s))
+}
+
+// type fmt.Stringer interface {
+// 	String() string
+// }
+
+func main2() {
+	fmt.Fprintln(os.Stdout, UpperString("hello, world"))
 }
