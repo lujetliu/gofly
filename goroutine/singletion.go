@@ -35,7 +35,7 @@ type singleton struct{}
 // 		return instance
 // 	}
 
-//  // 对读 instance 操作加锁
+//  // 对读写 instance 操作加锁
 // 	mu.Lock()
 // 	defer mu.Unlock()
 
@@ -57,7 +57,8 @@ func (o *Once) Do(f func()) {
 		return
 	}
 
-	// 对读 o.done 加锁
+	// 对读和写 o.done 这一前后过程加锁, 保证这个过程是一个整体(原子性)绑定执
+	// 行, 防止在读写的中间其他 goroutine 对 o.done 的写操作.
 	o.m.Lock()
 	defer o.m.Unlock()
 
