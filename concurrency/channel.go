@@ -6,7 +6,7 @@ import "fmt"
  * 通道(channel)是在 goroutine 之间进行同步的主要方法, 在无缓冲的通道上的每一
  * 次发送都有与其对应的接收操作相匹配, 发送和接收操作通常发生在不同的 goroutine
  * 上(在同一个 goroutine 上执行两个操作很容易导致死锁);
- *
+ * TODO: channel 源码, 内部原理
  */
 
 /*
@@ -37,10 +37,12 @@ func main1() {
 	go aGoroutine()
 	<-done
 	fmt.Println(msg)
+	// 这里因为对通道的发送操作是在子 goroutine 中进行的, 所以使用有缓冲
+	// 通道也是等效的
 }
 
-// 对于从无缓冲通道进行的接收, 发生在对该通道进行的发送完成之前
 /* 基于以上规则, 交换两个 goroutine 中的接收和发送操作也是可以的(很危险)   */
+// 对于从无缓冲通道进行的接收, 发生在对该通道进行的发送完成之前
 func bGoroutine() {
 	msg = "hello, world"
 	<-done
@@ -52,7 +54,7 @@ func main2() {
 	fmt.Println(msg)
 }
 
-// 也可以保证打印出 "hello, world", 因为在 main 中 done <- true 发送完成前,
+// 虽然也可以保证打印出 "hello, world", 因为在 main 中 done <- true 发送完成前,
 // 后台 goroutine 的接收已经开始, 这保证了 msg 的赋值操作被执行; 也就是说
 // 对无缓冲通道, 接收方和发送方都准备好后才会接收和发送; 但若该通道为带缓冲
 // 的 done = make(bool, 1), 则 main 中的 done <- true 发送操作将不会被后台
@@ -66,11 +68,38 @@ func main2() {
  *
  */
 
+// 基于带缓存通道, 可以将打印操作扩展到 N 个:
+func main3() {
+	done := make(chan int, 10) // 带10个缓冲区
+
+	// 开 N 个后台 goroutine 进行打印工作
+	for i := 0; i < cap(done); i++ {
+		// len(channel) 内部的数据长度
+		// cap(channel) channel 的容量
+		go func() {
+			fmt.Println("hello, world")
+			done <- 1
+		}()
+	}
+
+	// 等待 N 个后台 goroutine 执行完成
+	for i := 0; i < cap(done); i++ { // 可以用 range
+		<-done
+	}
+}
+
+/*
+ * TODO: sync 源码, WaitGroup 的实现原理, 进程调度, 信号量
+ * 对于这种要等待 N 个线程完成后再进行下一步的同步操作, sync 提供了
+ * sync.WaitGroup 来等待一组 goroutine 完成
+ *
+ */
+
 // 可以通过控制通道的缓冲区的大小控制并发执行的 goroutine 的最大数目
 var limit = make(chan int, 3)
 var work []func()
 
-func main() {
+func main4() {
 	for _, w := range work {
 		go func(w func()) {
 			limit <- 1

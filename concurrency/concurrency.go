@@ -75,6 +75,6 @@ package main
 
 /*
  * 并发编程的核心概念是同步通信, 但是同步的方式有多种.
- * - 使用 sync.Mutex
- * - 使用 channel
+ * - 使用 sync.Mutex, 见 ./mutex.go
+ * - 使用 channel, 见 ./channel.go
  */
