@@ -57,7 +57,8 @@ func worker2(wg *sync.WaitGroup) {
 
 	for i := 0; i <= 1000; i++ {
 		// time.Sleep(1000 * time.Microsecond)
-		// goroutines 执行速度过快, 加延迟模拟数据竞态执行结果
+		// 如果不加锁模拟数据竞态, 因为 goroutines 执行速度过快, 所有需要加
+		// 延迟模拟数据竞态执行结果
 		total2.Lock()     //  临界区:
 		total2.value += i // 通过加锁和解锁保证语句在同一时刻只被一个线程访问
 		total2.Unlock()   //
