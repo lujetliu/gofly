@@ -1,5 +1,7 @@
 package main
 
+/* 生产者/消费者模型 */
+
 import (
 	"fmt"
 	"os"
