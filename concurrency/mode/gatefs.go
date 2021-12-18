@@ -8,6 +8,7 @@ package main
  * TODO: 虚拟文件系统, gatefs 源码
  * go 语言自带的 godoc 程序中有一个 vfs 包, 其实现了一个虚拟的文件系统, 在 vfs
  * 包下的子包 gatefs 就是为了控制访问该虚拟文件系统的最大并发数.
+ * $GOPATH/pkg/mod/golang.org/x/tools@v0.1.0/godoc/vfs/gatefs/gatefs.go
  */
 
 // import (
