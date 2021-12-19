@@ -1,12 +1,15 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 /* 素数筛 */
 // 素数又叫质数（prime number), 有无限个; 质数定义为在大于1的自然数中,
 // 除了1和它本身以外不再有其他因数
 
-func GenerateNatural() <-chan int {
+// 返回生成自然数序列的通道 2, 3, 4, ......
+func GenerateNatural() chan int {
 	ch := make(chan int)
 	go func() {
 		for i := 2; ; i++ {
@@ -16,11 +19,12 @@ func GenerateNatural() <-chan int {
 	return ch
 }
 
+//  通道过滤器: 删除能被素数整除的数
 func PrimeFilter(in <-chan int, prime int) chan int {
 	out := make(chan int)
 	go func() {
-		for i := range in {
-			if i%prime != 0 {
+		for {
+			if i := <-in; i%prime != 0 {
 				out <- i
 			}
 		}
@@ -30,7 +34,7 @@ func PrimeFilter(in <-chan int, prime int) chan int {
 
 func main() {
 	ch := GenerateNatural()
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 100; i++ {
 		prime := <-ch // 新出现的素数
 		// 每次循环迭代时, 通道中的第一个数必是素数, 先读取并打印; 然后基于通道
 		// 中剩余的数列, 并以当前取出的素数为筛子过滤后面的素数, 不同的素数筛
