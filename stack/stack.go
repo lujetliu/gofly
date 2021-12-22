@@ -1,5 +1,8 @@
 package main
 
+/* go 的函数调用栈 */
+// go 底层原理分析
+
 func mul(a, b int) int {
 	return a * b
 }
