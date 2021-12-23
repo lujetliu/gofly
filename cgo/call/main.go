@@ -5,12 +5,12 @@ package main
 // 而 main 依然是 go 文件; 而用 go 函数重新实现了 c 语言接口的 SayHello()函数;
 // 现在将例子中的几个文件重新合并到一个 go 文件中.
 
-//void SayHello(char* s)
+//void SayHello(char* s);
 import "C"
 import "fmt"
 
 func main() {
-	C.SayHello(C.CString("hello, world\n"))
+	C.SayHello(C.CString("hello, world"))
 }
 
 //export SayHello
