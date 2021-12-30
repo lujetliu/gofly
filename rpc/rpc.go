@@ -15,3 +15,4 @@ package main
  */
 
 // 简单的打印例子 ./server.go, ./client.go
+// 更安全的 rpc 接口, ./rule.go, ./server1.go, ./client1.go
