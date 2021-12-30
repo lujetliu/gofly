@@ -42,4 +42,6 @@ func main() {
 	fmt.Println(reply)
 }
 
-// 现在避免了 rpc 方法名字和参数类型不匹配等低级错误的发生
+// 现在避免了 rpc 服务空间(HelloServieName), 方法名字(Hello)和参数类型不匹配
+// 等低级错误的发生
+// go run rule.go client1.go

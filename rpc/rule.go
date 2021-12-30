@@ -15,8 +15,10 @@ import "net/rpc"
 // 重构 HelloService 服务, 首先明确服务的名字和接口
 // 将 rpc 服务的接口分为3部分:
 // 1, 服务的名字
-const HelloServieName = "path/to/pkg.HelloService" // 为了避免名字冲突, 在 rpc
-// 服务的名字中增加了包路径前缀(rpc服务抽象的包路径, 并不等价 go 的包路径)
+const HelloServieName = "HelloService"
+
+// const HelloServieName = "path/to/pkg.HelloService" // 为了避免名字冲突,
+// 在rpc服务的名字中增加了包路径前缀(rpc服务抽象的包路径, 不等价 go 的包路径)
 
 // 2, 服务要实现的详细方法列表
 type HelloServiceInterface = interface {
@@ -45,5 +47,5 @@ func DialHelloService(network, address string) (*HelloServieClient, error) {
 }
 
 func (h *HelloServieClient) Hello(request string, reply *string) error {
-	return h.Client.Call(HelloServieName+",Hello", request, reply)
+	return h.Client.Call(HelloServieName+".Hello", request, reply)
 }
