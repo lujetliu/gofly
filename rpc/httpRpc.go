@@ -25,7 +25,7 @@ func (h *HelloService) Hello(request string, reply *string) error {
 
 // 在 http 协议上提供 jsonrpc 服务
 func main() {
-	rpc.RegisterName("HelloService", new(HelloService)) // TODO: 此行作用?
+	rpc.RegisterName("HelloService", new(HelloService))
 
 	http.HandleFunc("/jsonrpc", func(w http.ResponseWriter, r *http.Request) {
 		var conn io.ReadWriteCloser = struct {
