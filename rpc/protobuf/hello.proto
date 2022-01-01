@@ -3,7 +3,7 @@ syntax = "proto3";
 // 均采用类似 go 语言中的零值初始化(不再支持自定义默认值), 因此消息成员
 // 也不再需要 required 特性
 
-option go_package = "./main";
+option go_package = "./main"; // TODO: 
 
 
 package main;
@@ -15,4 +15,36 @@ message String {
 	}
 // message 关键字定义一个新的 String 类型, 在最终生成的 go 语言代码中对应一个
 // String 结构体, String 类型中只有一个字符串类型的 value 成员, 该成员在编码
-// 时用编号 1 代替名字.
+// 时用编号 1 代替名字; 在 xml 或 json 等数据描述语言中, 一般通过成员的名字
+// 来绑定对应的数据, 但是 protobuf 编码却是通过成员的唯一编号来绑定对应的数据,
+// 因此 protobuf 编码后数据的体积会比较小; 最终生成的 go 结构体可以自由采用
+// json 或 gob 等编码格式, 可暂忽略 protobuf 的成员编码细节.
+
+// Protobuf 的核心工具集使用 c++ 语言开发, 在官方的 protoc 编译器中并不支持
+// go 语言, 需要安装相应的插件才能基于此 proto 文件生成相应的 go 代码,
+// protoc 工具以及针对 go 语言的代码生成插件:
+// github.com/golang/protobuf/protoc-gen-go
+// 然后开始生成相应的 go 代码
+//> protoc --go_out=. hello.proto
+// go_out 参数指定 protoc 编译器加载对应的 protoc-gen-go 工具, 然后通过该工具
+// 生成代码并放到当前目录 ./main 中 ./main/hello.pb.go
+
+
+/*
+* 在 ../rule.go, ../server1.go, ../client1.go 中定义接口规范给 rpc 服务增加
+* 安全保障, 最终的更安全的 rpc 接口代码繁琐且需要使用手工维护, 同时全部安全
+* 相关的代码只适用于 go 语言环境; 既然使用了 Protobuf 定义的输入和输出参数,
+* 就可以通过 protobuf 定义 rpc 服务接口, 用 Protobuf 定义与语言无关的 rpc 
+* 服务接口才是 Protobuf 真正的价值所在, 如下通过 Protobuf 定义 HelloService
+* 服务:
+*/
+service HelloService {
+	rpc Hello (String) returns (String);
+	}
+// 重新使用 Line28 的命令生成的 go 代码并没有变化, 因为 rpc 的实现多种多样,
+// protoc 编译器需要使用 protoc-gen-go 内部集成的 grpc 插件可以针对 gRPC 生
+// 成代码:
+//> protoc --go_out=plugins=grpc:. hello.proto
+// 在生成的 go 文件中多了一些类似的 HelloServiceServer, HelloServiceClient 的
+// 新类型, 这些类型是为 gRPC 服务的, 并不符合 RPC 的要求; 
+// 探索如何为 RPC 生成安全的代码
