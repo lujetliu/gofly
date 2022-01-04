@@ -73,9 +73,42 @@ func (n *netrpcPlugin) Generate(file *generator.FileDescriptor) {
 }
 
 func (n *netrpcPlugin) genImportCode(file *generator.FileDescriptor) {
-	n.P("//TODO:import code")
+	n.P("import net/rpc")
 }
 
 func (n *netrpcPlugin) genServiceCode(svc *descriptor.ServiceDescriptorProto) {
 	n.P("//TODO:service code, Name =" + svc.GetName())
+}
+
+// 要在自定义的 genServiceCode() 方法中为每个服务生成相关的代码,
+// 每个服务最重要的是服务的名字, 每个服务有一组方法, 而对于服务定义
+// 的方法, 最重要的是方法的名字, 还有输入参数和输出参数类型的名字
+type ServiceSpec struct {
+	ServiceName string
+	MethodList  []ServiceMethodSpec
+}
+
+type ServiceMethodSpec struct {
+	MethodName     string
+	InputTypeName  string
+	OutputTypeName string
+}
+
+// 新建 buildServiceSpec() 方法用来解析每个服务的 ServiceSpec 元信息
+func (n *netrpcPlugin) buildServiceSpec(
+	svc *descriptor.ServiceDescriptorProto,
+) *ServiceSpec {
+	spec := &ServiceSpec{
+		ServiceName: generator.CamelCase(svc.GetName()),
+	}
+
+	for _, m := range svc.Method {
+		spec.MethodList = append(spec.MethodList, ServiceMethodSpec{
+			MethodName:     generator.CamelCase(m.GetName()),
+			InputTypeName:  n.TypeName(n.ObjectNamed(m.GetInputType())),
+			OutputTypeName: n.TypeName(n.ObjectNamed(m.GetOutputType())),
+		})
+	}
+
+	return spec
 }
