@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bytes"
+	"html/template"
 	"io/ioutil"
+	"log"
 	"os"
 
 	"github.com/golang/protobuf/proto"
@@ -10,6 +13,8 @@ import (
 )
 
 /* 实现插件 proto-gen-go-netrpc 为标准库的 rpc 框架生成代码 */
+
+// TODO: 插件的使用
 
 // 因为 go 语言的包只能静态导入, 所有无法向已经安装的 protoc-gen-go 添加新
 // 编写的插件, 所以这里克隆 protoc-gen-go 对应的 main() 函数
@@ -77,7 +82,17 @@ func (n *netrpcPlugin) genImportCode(file *generator.FileDescriptor) {
 }
 
 func (n *netrpcPlugin) genServiceCode(svc *descriptor.ServiceDescriptorProto) {
-	n.P("//TODO:service code, Name =" + svc.GetName())
+	// 基于 buildServiceSpec() 方法构造的服务的元信息生成服务的代码
+	spec := n.buildServiceSpec(svc)
+
+	var buf bytes.Buffer
+	t := template.Must(template.New("").Parse(tmplService))
+	err := t.Execute(&buf, spec)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	n.P(buf.String())
 }
 
 // 要在自定义的 genServiceCode() 方法中为每个服务生成相关的代码,
@@ -97,14 +112,21 @@ type ServiceMethodSpec struct {
 // 新建 buildServiceSpec() 方法用来解析每个服务的 ServiceSpec 元信息
 func (n *netrpcPlugin) buildServiceSpec(
 	svc *descriptor.ServiceDescriptorProto,
+	// 此参数完整描述了一个服务的所有信息
 ) *ServiceSpec {
 	spec := &ServiceSpec{
 		ServiceName: generator.CamelCase(svc.GetName()),
+		// svc.GetName() 获取 protobuf 文件中定义的服务的名字
+		// protobuf 文件中的名字转为 go 语言的名字后, 需要通过 CamelCase() 函数
+		// 进行一次转换
 	}
 
 	for _, m := range svc.Method {
 		spec.MethodList = append(spec.MethodList, ServiceMethodSpec{
-			MethodName:     generator.CamelCase(m.GetName()),
+			MethodName: generator.CamelCase(m.GetName()),
+			// 对输入参数和输出参数的解析:
+			// 先通过 GetInputType() 获取输入参数的类型, 再通过 ObjectNamed()
+			// 获取类型对应的类对象信息, 最后获取类对象的名字
 			InputTypeName:  n.TypeName(n.ObjectNamed(m.GetInputType())),
 			OutputTypeName: n.TypeName(n.ObjectNamed(m.GetOutputType())),
 		})
@@ -112,3 +134,52 @@ func (n *netrpcPlugin) buildServiceSpec(
 
 	return spec
 }
+
+// TODO:
+// 当 protobuf 额插件定制工作完成后, 每次 ./hello.proto 文件中的 rpc 服务的变化
+// 都可以自动生成代码, 也可以通过更新插件的模板, 调整或增加生成代码的内容
+// 服务的模板(基于go语言的模板生成代码)
+const tmplService = `
+	{{$root := .}}
+	
+	type {{.ServiceName}}Interface interface {
+		{{- range $_, $m := .MethodList}}
+		{{$m.MethodName}}(*{{$m.InputTypeName)}}, *{{$m.OutputTypeName}}) error
+	}
+
+
+	type Register{{.ServiceName}} (
+		src *rpc.Server, x {{.ServiceName}}Interface,
+	) error {
+		if err := srv.RegisterName("{{.ServiceName}}", x); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	type {{.ServiceName}}Client struct {
+		*rpc.Client
+	}
+
+	var _ {{.ServiceName}}Interface = (*{{.ServiceName}}Client)(nil)
+
+	func Dial{{.ServiceName}} (network, address string) {
+		*{{.ServiceName}}Client, error,
+	} {
+		c, err := rpc.Dial(network, address)
+		if err != nil {
+			return nil, err
+		}
+
+		return &{{.ServiceName}}Client{Client: c}, nil
+	}
+
+	{{range $_, $m := .MethodList}}
+	func (n *{{$root.ServiceName}}Client) {{$m.MethodName}} (
+		in *{{$m.InputTypeName}}, out *{{$m.OutputTypeName}},
+	) error {
+		return n.Client.Call("{{$root.ServiceName}}.{{$m.MethodName}}", in, out)
+	}
+
+	{{end}}
+`
