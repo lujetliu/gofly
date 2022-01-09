@@ -17,7 +17,7 @@ import "net/rpc"
 // 1, 服务的名字
 const HelloServieName = "HelloService"
 
-// const HelloServieName = "path/to/pkg.HelloService" // 为了避免名字冲突,
+// const HelloServieName = "path/to/pkg.HelloService", 为了避免名字冲突,
 // 在rpc服务的名字中增加了包路径前缀(rpc服务抽象的包路径, 不等价 go 的包路径)
 
 // 2, 服务要实现的详细方法列表

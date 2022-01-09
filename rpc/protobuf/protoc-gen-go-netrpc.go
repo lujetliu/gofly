@@ -148,7 +148,7 @@ func (n *netrpcPlugin) buildServiceSpec(
 }
 
 // TODO:
-// 当 protobuf 额插件定制工作完成后, 每次 ./hello.proto 文件中的 rpc 服务的变化
+// 当 protobuf 插件定制工作完成后, 每次 ./hello.proto 文件中的 rpc 服务的变化
 // 都可以自动生成代码, 也可以通过更新插件的模板, 调整或增加生成代码的内容
 // 服务的模板(基于go语言的模板生成代码)
 const tmplService = `
@@ -196,5 +196,3 @@ const tmplService = `
 
 	{{end}}
 `
-
-//
