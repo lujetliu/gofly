@@ -32,4 +32,4 @@ package main
 // 	GenerateImports(file *FileDescriptor) // 生成导入包代码
 // }
 
-// 因此可以实现插件为标准库的 rpc 生辰代码 ./netrpcPlugin.go
+// 因此可以实现插件为标准库的 rpc 生辰代码 ./protoc-gen-go-netrpc.go

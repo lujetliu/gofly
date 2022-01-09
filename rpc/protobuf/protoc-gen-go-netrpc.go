@@ -2,7 +2,7 @@ package main
 
 import (
 	"bytes"
-	"html/template"
+	"html/template" // TODO: 源码
 	"io/ioutil"
 	"log"
 	"os"
@@ -12,9 +12,21 @@ import (
 	"github.com/golang/protobuf/protoc-gen-go/generator"
 )
 
-/* 实现插件 proto-gen-go-netrpc 为标准库的 rpc 框架生成代码 */
+/* 实现插件 protoc-gen-go-netrpc 为标准库的 rpc 框架生成代码 */
 
-// TODO: 插件的使用
+// > go mod init protoc-gen-go-netrpc, 定义包名(插件名称)
+// > ...
+// > go intall, 安装该插件到 $GOROOT/bin 中
+// > protoc --go-netrpc_out=plugins=netrpc:. hello.proto
+// 生成的 go 文件为 ./main/hello.pb.go
+// --go-netrpc_out 参数告知编译器加载名为 protoc-gen-go-netrpc 的插件,
+// 插件中的 plugins=netrpc 指示启用内部唯一的名为 netrpc 的 netrpcPlugin 插件,
+// 在新生成的 hello.pb.go 中将包含新增加的注释代码
+
+// 使用该插件需要先通过 generator.RegisterPlugin() 函数注册插件
+func init() {
+	generator.RegisterPlugin(new(netrpcPlugin))
+}
 
 // 因为 go 语言的包只能静态导入, 所有无法向已经安装的 protoc-gen-go 添加新
 // 编写的插件, 所以这里克隆 protoc-gen-go 对应的 main() 函数
@@ -78,7 +90,7 @@ func (n *netrpcPlugin) Generate(file *generator.FileDescriptor) {
 }
 
 func (n *netrpcPlugin) genImportCode(file *generator.FileDescriptor) {
-	n.P("import net/rpc")
+	n.P(`import "net/rpc"`)
 }
 
 func (n *netrpcPlugin) genServiceCode(svc *descriptor.ServiceDescriptorProto) {
@@ -144,12 +156,13 @@ const tmplService = `
 	
 	type {{.ServiceName}}Interface interface {
 		{{- range $_, $m := .MethodList}}
-		{{$m.MethodName}}(*{{$m.InputTypeName)}}, *{{$m.OutputTypeName}}) error
+		{{$m.MethodName}}(*{{$m.InputTypeName}}, *{{$m.OutputTypeName}}) error
+		{{- end}}
 	}
 
 
-	type Register{{.ServiceName}} (
-		src *rpc.Server, x {{.ServiceName}}Interface,
+	func Register{{.ServiceName}} (
+		srv *rpc.Server, x {{.ServiceName}}Interface,
 	) error {
 		if err := srv.RegisterName("{{.ServiceName}}", x); err != nil {
 			return err
@@ -163,9 +176,9 @@ const tmplService = `
 
 	var _ {{.ServiceName}}Interface = (*{{.ServiceName}}Client)(nil)
 
-	func Dial{{.ServiceName}} (network, address string) {
+	func Dial{{.ServiceName}} (network, address string) (
 		*{{.ServiceName}}Client, error,
-	} {
+	) {
 		c, err := rpc.Dial(network, address)
 		if err != nil {
 			return nil, err
@@ -183,3 +196,5 @@ const tmplService = `
 
 	{{end}}
 `
+
+//

@@ -3,7 +3,7 @@ syntax = "proto3";
 // 均采用类似 go 语言中的零值初始化(不再支持自定义默认值), 因此消息成员
 // 也不再需要 required 特性
 
-option go_package = "./main"; // TODO: 
+option go_package = "./main"; // TODO: 指定生成的文件夹
 
 
 package main;
@@ -45,6 +45,7 @@ service HelloService {
 // protoc 编译器需要使用 protoc-gen-go 内部集成的 grpc 插件可以针对 gRPC 生
 // 成代码:
 //> protoc --go_out=plugins=grpc:. hello.proto
+// 生成的 go 文件 ./main/hello0.pb.go
 // 在生成的 go 文件中多了一些类似的 HelloServiceServer, HelloServiceClient 的
 // 新类型, 这些类型是为 gRPC 服务的, 并不符合 RPC 的要求; 
-// 探索如何为 RPC 生成安全的代码
+// 探索如何为 RPC 生成安全的代码, ./plugin.go
