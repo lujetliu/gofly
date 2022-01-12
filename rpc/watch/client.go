@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/rpc"
+	"time"
 )
 
 // TODO: net/rpc 源码
@@ -72,16 +73,43 @@ import (
 */
 
 // 使用 Client.Go() 调用 ../server.go 中的 HelloService 服务
-func doClientWork(client *rpc.Client) {
-	helloCall := client.Go("HelloService.Hello", "hello", new(string), nil)
+// func doClientWork(client *rpc.Client) {
+// 	helloCall := client.Go("HelloService.Hello", "hello", new(string), nil)
 
-	// ...
-	helloCall = <-helloCall.Done
-	if err := helloCall.Error; err != nil {
+// 	// ...
+// 	helloCall = <-helloCall.Done
+// 	if err := helloCall.Error; err != nil {
+// 		log.Fatal(err)
+// 	}
+
+// 	args := helloCall.Args.(string)
+// 	reply := helloCall.Reply.(string)
+// 	fmt.Println(args, reply)
+// }
+
+func doClientWork(client *rpc.Client) {
+	go func() {
+		var keyChanged string
+		err := client.Call("KVStoreService.Watch", 30, &keyChanged)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println("watch:", keyChanged)
+	}()
+
+	err := client.Call("KVStoreService.Set", [2]string{"abc", "abc-value"},
+		new(struct{}))
+	if err != nil {
 		log.Fatal(err)
 	}
 
-	args := helloCall.Args.(string)
-	reply := helloCall.Reply.(string)
-	fmt.Println(args, reply)
+	time.Sleep(time.Second * 3)
+}
+
+func main() {
+	client, err := rpc.Dial("tcp", "localhost:8080")
+	if err != nil {
+		log.Fatal("dialing:", err)
+	}
+	doClientWork(client)
 }
