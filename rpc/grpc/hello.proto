@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+option go_package = "./main"; 
+
+package main;
+
+message String {	
+	string value = 1; // 有类似 iota  等枚举功能?
+	}
+
+service HelloService {
+	rpc Hello (String) returns (String);
+	}
+
+
+//> protoc --go_out=plugins=grpc:. hello.proto
+// 生成 ./main/hello.pb.go
+/*
+	gRPC 插件会为服务器端和客户端生成不同的接口(hello.pb.go)
+
+	// HelloServiceClient is the client API for HelloService service.
+	//
+	// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+	type HelloServiceClient interface {
+		Hello(ctx context.Context, in *String, opts ...grpc.CallOption) (*String, error)
+	}
+
+	// HelloServiceServer is the server API for HelloService service.
+	type HelloServiceServer interface {
+		Hello(context.Context, *String) (*String, error)
+	}
+
+	gRPC 通过 context.Context 参数为每个方法调用提供了上下文支持, 客户端在调用
+	方法的时候可以通过可选的 grpc.CallOption 类型的参数提供额外的上下文信息
+	TODO: 原理, 为何需要上下文
+
+*/

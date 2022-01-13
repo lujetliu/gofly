@@ -14,7 +14,7 @@ import (
 
 type HelloService struct {
 	conn    net.Conn
-	isLogin bool
+	isLogin bool // 属于一个单独的 tcp 连接, 对其的修改或读取不存在数据竞态
 }
 
 func (h *HelloService) Login(request string, reply *string) error {
@@ -23,7 +23,7 @@ func (h *HelloService) Login(request string, reply *string) error {
 	}
 
 	log.Println("login ok")
-	h.isLogin = true // 有必要加锁?
+	h.isLogin = true
 	return nil
 }
 
