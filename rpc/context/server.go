@@ -23,6 +23,5 @@ func main() {
 			h.Register(&HelloService{conn: conn})
 			h.ServeConn(conn)
 		}()
-		rpc.ServeConn(conn)
 	}
 }

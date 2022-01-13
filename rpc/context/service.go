@@ -1,5 +1,11 @@
 package main
 
+/*
+ TODO: 对上下文的理解(context); tcp 连接
+ 基于上下文可以针对不同客户端定制化的 rpc 服务, 可以通过为每个 tcp 连接提供独立
+ 的 rpc 服务来实现对上下文特性的支持
+*/
+
 import (
 	"fmt"
 	"log"
@@ -26,6 +32,6 @@ func (h *HelloService) Hello(request string, reply *string) error {
 		return fmt.Errorf("please login")
 	}
 
-	*reply = "hello: " + request + ", from" + h.conn.RemoteAddr().String()
+	*reply = "hello: " + request + ", from " + h.conn.RemoteAddr().String()
 	return nil
 }
