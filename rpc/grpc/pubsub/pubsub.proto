@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "./"; 
+option go_package = "./main"; 
 
 package main;
 
@@ -9,6 +9,6 @@ message String {
 	}
 
 service PubsubService {
-	rpc Public (String) returns (String);
+	rpc Publish (String) returns (String);
 	rpc Subscribe (String) returns (stream String); // 单向流服务
 	}

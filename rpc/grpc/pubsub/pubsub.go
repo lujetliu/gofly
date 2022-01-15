@@ -9,7 +9,7 @@ package main
 
  发布和订阅是一个常见的设计模式(TODO), 开源社区中已经存在很多实现, 其中 Docker
  项目提供了一个 pubsub 的极简实现; 参考本文件中的代码, 开始尝试基于 grpc 和
- pubsub 包提供一个跨网络的发布和订阅系统. ./pubsub.proto, ./pubsub.pb.go
+ pubsub 包提供一个跨网络的发布和订阅系统. ./pubsub.proto, ./main/pubsub.pb.go
 
  因此 Subscribe 是服务器端的单向流, 所以生成的 PubsubService_SubscribeServer
  接口只有 Send() 方法
