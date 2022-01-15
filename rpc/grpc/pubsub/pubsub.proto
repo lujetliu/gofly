@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option go_package = "./"; 
+
+package main;
+
+message String {	
+	string value = 1; 
+	}
+
+service PubsubService {
+	rpc Public (String) returns (String);
+	rpc Subscribe (String) returns (stream String); // 单向流服务
+	}
