@@ -28,3 +28,5 @@ package main
 // ./hello.proto
 // ./main/server.go, ./main/client.go, ./main/service.go, ./main/hello.pb.go
 // TODO: 以上代码功能虽已实现, 但还需要深入理解原理
+
+// gRPC 框架针对服务器端和客户端分别提供了流特性 ./stream
