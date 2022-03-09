@@ -1,0 +1,13 @@
+#include "textflag.h"
+
+/*
+GLOBL ·NameData(SB), NOPTR, $7
+DATA ·NameData(SB)/8,$"gopher"
+*/
+
+GLOBL ·Name(SB), NOPTR, $24
+
+DATA ·Name+0(SB)/8, $·Name+16(SB)
+DATA ·Name+8(SB)/8, $6
+DATA ·Name+16(SB)/8, $"gopher"
+

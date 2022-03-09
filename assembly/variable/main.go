@@ -5,4 +5,5 @@ import pkg "var/pkg"
 
 func main() {
 	fmt.Println(pkg.Id)
+	fmt.Println(pkg.Name)
 }
