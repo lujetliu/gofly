@@ -21,3 +21,7 @@ var Name string
 
 /* 数组类型变量 */
 var Num [2]int = [2]int{0, 0}
+
+var Helloworld string
+
+var SliceData []byte
