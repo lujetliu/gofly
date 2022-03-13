@@ -4,6 +4,8 @@ package pkg
 var Id int
 
 /* 字符串 */
+// var Name string = "gopher"
+// duplicated definition of symbol var/pkg.Name( ./string_amd64.s) TODO:???
 var Name string
 
 /*
@@ -16,3 +18,6 @@ var Name string
 			0x0000 00 00 00 00 00 00 00 00 06 00 00 00 00 00 00 00  ................
 			rel 0+8 t=1 go.string."gopher"+0
 */
+
+/* 数组类型变量 */
+var Num [2]int = [2]int{0, 0}
